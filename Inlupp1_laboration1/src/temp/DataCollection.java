@@ -14,7 +14,6 @@ public class DataCollection {
 		this.xUnit = xUnit;
 		this.yUnit = yUnit;
 		this.data = data;
-		System.out.println("My 2nd edited syso print 10:27");
 	}
 
 	public Map<String, MatchedDataPair> getData() {
@@ -37,7 +36,12 @@ public class DataCollection {
 	public String toString() {
 		return "Title: " + title + ", xUnit: " + xUnit + ", yUnit: " + yUnit;
 	}
-	
+	@Override
+	public boolean equals(Object o){
+		DataCollection other = ((DataCollection)o);
+		return (getTitle().equals(other.getTitle()) && xUnit.equals(other.getxUnit()) 
+				&& yUnit.equals(other.getyUnit()) && data.equals(other.getData()));
+	}
 	
 
 }

@@ -73,6 +73,7 @@ public class DataCollectionBuilderTest {
 	public void testGetResultMonth() {
 		dcBuilder = new DataCollectionBuilder(xData, yData, Resolution.MONTH);
 		DataCollection data = dcBuilder.getResult();
+		System.out.println(data.getData());
 	}
 
 }

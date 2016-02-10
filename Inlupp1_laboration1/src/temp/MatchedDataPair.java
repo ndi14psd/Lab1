@@ -23,8 +23,8 @@ public class MatchedDataPair {
 		return xValue + ", " + yValue;
 	}
 	@Override
-	public boolean equals(Object m){
-		return(xValue.equals(((MatchedDataPair) m).getXValue()) && yValue.equals(((MatchedDataPair) m).getYValue()));
+	public boolean equals(Object obj){
+		return xValue.equals(((MatchedDataPair) obj).getXValue()) && yValue.equals(((MatchedDataPair) obj).getYValue());
 	}
 
 }

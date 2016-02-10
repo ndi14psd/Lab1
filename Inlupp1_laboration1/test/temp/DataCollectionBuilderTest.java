@@ -66,7 +66,13 @@ public class DataCollectionBuilderTest {
 	assertTrue((data.getData().get("2016-03-02").equals(new MatchedDataPair(5.0, 12.0))));
 	assertTrue((data.getData().get("2016-03-06").equals(new MatchedDataPair(6.0, 5.0))));
 	
+	System.out.println(data.getData());
+	}
 	
+	@Test
+	public void testGetResultMonth() {
+		dcBuilder = new DataCollectionBuilder(xData, yData, Resolution.MONTH);
+		DataCollection data = dcBuilder.getResult();
 	}
 
 }

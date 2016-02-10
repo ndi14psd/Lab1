@@ -2,9 +2,7 @@ package temp;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +20,8 @@ public class DataCollectionBuilder {
 		this.xData = xData;
 		this.yData = yData;
 		this.resolution = resolution;
+		finalResult = new HashMap<>();
+		resultData = new HashMap<>();
 	}
 
 	public DataCollectionBuilder(DataSource xData, DataSource yData, Resolution resolution, String title) {
@@ -34,45 +34,21 @@ public class DataCollectionBuilder {
 	}
 
 	public DataCollection getResult() {
-	
-
-		if(resolution == Resolution.DAY) {
-			matchDataByDays();
-		}
-
-		else if(resolution == Resolution.MONTH) {
-			/* 1. */ matchDataByDays();
-			
-			/* 2. lägger in värden i samma månad i listor i mappen resultData, nyckel = [MÅNAD]*/
-			Set<String> keys = finalResult.keySet();
-			resultData = new HashMap<>();
-			List<MatchedDataPair> monthPairs;
-			
-			for(String dayKey : keys) {
-				String monthKey = LocalDate.parse(dayKey).getMonth().toString();
-				if(!resultData.containsKey(monthKey)) {
-					monthPairs = new ArrayList<>();
-					monthPairs.add(finalResult.get(dayKey));
-					resultData.put(monthKey, monthPairs);
-				} else {
-					monthPairs = resultData.get(monthKey);
-					monthPairs.add(finalResult.get(dayKey));
-				}
-			}
-			
-			/* 3. måste lägga ihop värdena i varje lista (summa eller medelvärde?) */
-		}
+		matchDataByDays();
+		transformToOtherResolution();
+		compressListsToSingleValues();
+		
 		return new DataCollection(getTitle(), xData.getUnit(), yData.getUnit(), finalResult);
 	}
 
 	private void matchDataByDays() {
 		List<LocalDate> xKeys = new ArrayList<>();
 		List<LocalDate> yKeys = new ArrayList<>();
-		finalResult = new HashMap<>();
+
 		xKeys.addAll(xData.getData().keySet());
 		yKeys.addAll(yData.getData().keySet());
 
-		for (int i = 0; i < xKeys.size(); i++) {
+		for (int i = 0; i < xKeys.size(); i++) 
 			for (int u = 0; u < yKeys.size(); u++) {
 				if(xKeys.get(i).equals(yKeys.get(u))){
 					String key = xKeys.get(i).toString();
@@ -82,8 +58,57 @@ public class DataCollectionBuilder {
 					finalResult.put(key, match);
 				}
 			}
-		}
+	}
 
+	private void transformToOtherResolution() {
+		Set<String> keys = finalResult.keySet();
+
+		for(String dayKey : keys) {
+			String newKey = getDesiredKey(LocalDate.parse(dayKey));
+			if(!resultData.containsKey(newKey)) {
+				List<MatchedDataPair> monthPairs = new ArrayList<>();
+				monthPairs.add(finalResult.get(dayKey));
+				resultData.put(newKey, monthPairs);
+			} else {
+				List<MatchedDataPair> monthPairs = resultData.get(newKey);
+				monthPairs.add(finalResult.get(dayKey));
+			}
+		}
+	}
+
+	private String getDesiredKey(LocalDate date) {
+		switch(resolution) {
+
+		case DAY: return date.toString();
+
+		case WEEK: 
+
+		case MONTH: return date.getMonth().name();
+		
+		case YEAR: return "" + date.getYear(); 
+
+		default: throw new RuntimeException();
+
+		}
+	}
+
+	private void compressListsToSingleValues() {
+		finalResult.clear();
+
+		resultData.forEach((key, entries) -> {
+			Double sumX = 0.0;
+			Double sumY = 0.0;
+
+			for( MatchedDataPair pair : entries) {
+				sumX += pair.getXValue();
+				sumY += pair.getYValue();
+			}
+
+			Double averageX = sumX / entries.size();
+			Double averageY = sumY / entries.size();
+
+			finalResult.put(key, new MatchedDataPair(averageX, averageY));
+		});
 	}
 
 

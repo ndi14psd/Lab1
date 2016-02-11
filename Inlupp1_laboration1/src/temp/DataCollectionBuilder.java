@@ -2,9 +2,7 @@ package temp;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,21 +33,6 @@ public class DataCollectionBuilder {
 		return (title != null) ? title : xData.getName() + " / " + yData.getName();
 	}
 	
-	private void transformToOtherResolution(Set<LocalDate> keys) {
-		
-		for(LocalDate key : keys) {
-			String newKey = resolution.getKey(key);
-			if(!resultData.containsKey(newKey)) {
-				List<MatchedDataPair> monthPairs = new ArrayList<>();
-				monthPairs.add(finalResult.get(key));
-				resultData.put(newKey, monthPairs);
-			} else {
-				List<MatchedDataPair> monthPairs = resultData.get(newKey);
-				monthPairs.add(finalResult.get(key));
-			}
-		}
-	}
-
 	public DataCollection getResult() {
 		
 		List<LocalDate> xKeys = new ArrayList<>();
@@ -57,6 +40,7 @@ public class DataCollectionBuilder {
 
 		xKeys.addAll(xData.getData().keySet());
 		yKeys.addAll(yData.getData().keySet());
+		
 
 		for (int i = 0; i < xKeys.size(); i++) {
 			String xKey = resolution.getKey(xKeys.get(i));

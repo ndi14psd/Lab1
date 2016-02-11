@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class DataCollectionBuilder {
 
@@ -33,33 +34,67 @@ public class DataCollectionBuilder {
 	public String getTitle() {
 		return (title != null) ? title : xData.getName() + " / " + yData.getName();
 	}
+	
+	private void transformToOtherResolution(Set<LocalDate> keys) {
+		
+		for(LocalDate key : keys) {
+			String newKey = resolution.getKey(key);
+			if(!resultData.containsKey(newKey)) {
+				List<MatchedDataPair> monthPairs = new ArrayList<>();
+				monthPairs.add(finalResult.get(key));
+				resultData.put(newKey, monthPairs);
+			} else {
+				List<MatchedDataPair> monthPairs = resultData.get(newKey);
+				monthPairs.add(finalResult.get(key));
+			}
+		}
+	}
 
 	public DataCollection getResult() {
+		
 		List<LocalDate> xKeys = new ArrayList<>();
 		List<LocalDate> yKeys = new ArrayList<>();
 
 		xKeys.addAll(xData.getData().keySet());
 		yKeys.addAll(yData.getData().keySet());
 
-		List<MatchedDataPair> matches = new ArrayList<>();
-		
 		for (int i = 0; i < xKeys.size(); i++) {
 			String xKey = resolution.getKey(xKeys.get(i));
 			for (int u = 0; u < yKeys.size(); u++) {
 				String yKey = resolution.getKey(yKeys.get(u));
 				if(xKey.equals(yKey)){
-					
-					if(resultData.containsKey(xKey)) {
-						
-					}
 					Double xKeyData = xData.getData().get(xKeys.get(i));
 					Double yKeyData = yData.getData().get(yKeys.get(u));
-					matches.add(new MatchedDataPair(xKeyData, yKeyData));
 					
+					if(resultData.containsKey(xKey)) {
+						List<MatchedDataPair> existing = resultData.get(xKey);
+						existing.add(new MatchedDataPair(xKeyData, yKeyData));
+					}
+					else {
+						List<MatchedDataPair> matches = new ArrayList<>();
+						matches.add(new MatchedDataPair(xKeyData, yKeyData));
+						resultData.put(xKey, matches);
+					}
 				}
 			}
-			resultData.put(xKey, matches);
 		}
+		
+		resultData.forEach((key, list) -> {
+			
+			Double sumX = 0.0;
+			Double sumY = 0.0;
+			
+			for (int i = 0; i < list.size(); i++) {
+				sumX += list.get(i).getXValue();
+				sumY += list.get(i).getYValue();
+			}
+			
+			Double averageX = sumX / list.size();
+			Double averageY = sumY / list.size();
+			
+			finalResult.put(key, new MatchedDataPair(sumX, sumY));
+			
+		});
 
 		return new DataCollection(getTitle(), xData.getUnit(), yData.getUnit(), finalResult);
 	}

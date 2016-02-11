@@ -76,7 +76,7 @@ public class DataCollectionBuilder {
 			Double averageX = sumX / list.size();
 			Double averageY = sumY / list.size();
 			
-			finalResult.put(key, new MatchedDataPair(sumX, sumY));
+			finalResult.put(key, new MatchedDataPair(averageX, averageY));
 			
 		});
 

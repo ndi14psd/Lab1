@@ -21,6 +21,8 @@ public class DataCollectionBuilder {
 		this.xData = xData;
 		this.yData = yData;
 		this.resolution = resolution;
+		finalResult = new HashMap<>();
+		resultData = new HashMap<>();
 	}
 
 	public DataCollectionBuilder(DataSource xData, DataSource yData, Resolution resolution, String title) {
@@ -35,24 +37,30 @@ public class DataCollectionBuilder {
 	public DataCollection getResult() {
 		List<LocalDate> xKeys = new ArrayList<>();
 		List<LocalDate> yKeys = new ArrayList<>();
-		finalResult = new HashMap<>();
+
 		xKeys.addAll(xData.getData().keySet());
 		yKeys.addAll(yData.getData().keySet());
-		
-		if(resolution == Resolution.DAY) {
-			for (int i = 0; i < xKeys.size(); i++) {
-				for (int u = 0; u < yKeys.size(); u++) {
-					if(xKeys.get(i).equals(yKeys.get(u))){
-						String key = xKeys.get(i).toString();
-						Double xKeyData = xData.getData().get(xKeys.get(i));
-						Double yKeyData = yData.getData().get(yKeys.get(u));
-						MatchedDataPair match = new MatchedDataPair(xKeyData, yKeyData);
-						finalResult.put(key, match);
-					}
 
+		List<MatchedDataPair> matches = new ArrayList<>();
+		
+		for (int i = 0; i < xKeys.size(); i++) {
+			String xKey = resolution.getKey(xKeys.get(i));
+			for (int u = 0; u < yKeys.size(); u++) {
+				String yKey = resolution.getKey(yKeys.get(u));
+				if(xKey.equals(yKey)){
+					
+					if(resultData.containsKey(xKey)) {
+						
+					}
+					Double xKeyData = xData.getData().get(xKeys.get(i));
+					Double yKeyData = yData.getData().get(yKeys.get(u));
+					matches.add(new MatchedDataPair(xKeyData, yKeyData));
+					
 				}
 			}
+			resultData.put(xKey, matches);
 		}
+
 		return new DataCollection(getTitle(), xData.getUnit(), yData.getUnit(), finalResult);
 	}
 

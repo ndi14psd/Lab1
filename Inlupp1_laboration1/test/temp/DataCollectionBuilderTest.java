@@ -14,7 +14,7 @@ import org.junit.Test;
 
 public class DataCollectionBuilderTest {
 	DataCollectionBuilder dcBuilder;
-	Map<String, MatchedDataPair> correctData;
+	Map<String, MatchedDataPair> correctDataDay;
 	DataSource xData;
 	DataSource yData;
 	Resolution resolution;
@@ -32,18 +32,23 @@ public class DataCollectionBuilderTest {
 		temperatureTable.put(LocalDate.of(2016, 3, 2), (double) 5);
 		temperatureTable.put(LocalDate.of(2016, 3, 6), (double) 6);
 		
+		temperatureTable.put(LocalDate.of(2005, 2, 6), (double) 6);
+		temperatureTable.put(LocalDate.of(2005, 3, 6), (double) -4);
+		wakeUpTimeTable.put(LocalDate.of(2005, 5, 1), (double) 6);
+		wakeUpTimeTable.put(LocalDate.of(2005, 1, 1), (double) 7);
+		
 		wakeUpTimeTable.put(LocalDate.of(2016, 1, 1), (double) 6);
 		wakeUpTimeTable.put(LocalDate.of(2016, 2, 1), (double) 8);
 		wakeUpTimeTable.put(LocalDate.of(2016, 2, 5), (double) 6);
 		wakeUpTimeTable.put(LocalDate.of(2016, 3, 2), (double) 12);
 		wakeUpTimeTable.put(LocalDate.of(2016, 3, 6), (double) 5);
 		
-		correctData = new HashMap<>();
-		correctData.put("2016-01-01", new MatchedDataPair(-14.0, 6.0));	//4
-		correctData.put("2016-02-01", new MatchedDataPair(0.0, 8.0));	//3
-		correctData.put("2016-02-05", new MatchedDataPair(-4.0, 6.0));  //1
-		correctData.put("2016-03-02", new MatchedDataPair(5.0, 12.0));	//5
-		correctData.put("2016-03-06", new MatchedDataPair(6.0, 5.0));	//2
+		correctDataDay = new HashMap<>();
+		correctDataDay.put("2016-01-01", new MatchedDataPair(-14.0, 6.0));	//4
+		correctDataDay.put("2016-02-01", new MatchedDataPair(0.0, 8.0));	//3
+		correctDataDay.put("2016-02-05", new MatchedDataPair(-4.0, 6.0));  //1
+		correctDataDay.put("2016-03-02", new MatchedDataPair(5.0, 12.0));	//5
+		correctDataDay.put("2016-03-06", new MatchedDataPair(6.0, 5.0));	//2
 		xData = new FakeDataSource("Temperature", "Celcius", temperatureTable);
 		yData = new FakeDataSource("Wake up time","Hour", wakeUpTimeTable);
 		dcBuilder = new DataCollectionBuilder(xData, yData, resolution);
@@ -55,9 +60,9 @@ public class DataCollectionBuilderTest {
 	}
 	
 	@Test
-	public void testGetResult() {
+	public void testGetResultDay() {
 	DataCollection data = dcBuilder.getResult();
-	DataCollection dataCollection = new DataCollection("Temperature / Wake up time", "Celcius", "Hour", correctData);
+	DataCollection dataCollection = new DataCollection("Temperature / Wake up time", "Celcius", "Hour", correctDataDay);
 	assertEquals("Celcius", data.getxUnit());
 	assertEquals("Hour", data.getyUnit());
 	assertTrue(dataCollection.equals(data));
@@ -69,10 +74,24 @@ public class DataCollectionBuilderTest {
 	
 	System.out.println(data.getData());
 	}
-
+	
+	@Test
+	public void testGetResultWeek() {
+		dcBuilder = new DataCollectionBuilder(xData, yData, Resolution.WEEK);
+		DataCollection data = dcBuilder.getResult();
+		System.out.println(data.getData());
+	}
+	
 	@Test
 	public void testGetResultMonth() {
 		dcBuilder = new DataCollectionBuilder(xData, yData, Resolution.MONTH);
+		DataCollection data = dcBuilder.getResult();
+		System.out.println(data.getData());
+	}
+	
+	@Test
+	public void testGetResultYear() {
+		dcBuilder = new DataCollectionBuilder(xData, yData, Resolution.YEAR);
 		DataCollection data = dcBuilder.getResult();
 		System.out.println(data.getData());
 	}

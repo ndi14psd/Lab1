@@ -50,19 +50,40 @@ public class DataCollectionBuilder {
 					Double xKeyData = xData.getData().get(xKeys.get(i));
 					Double yKeyData = yData.getData().get(yKeys.get(u));
 					
-					if(resultData.containsKey(xKey)) {
-						List<MatchedDataPair> existing = resultData.get(xKey);
-						existing.add(new MatchedDataPair(xKeyData, yKeyData));
-					}
-					else {
-						List<MatchedDataPair> matches = new ArrayList<>();
-						matches.add(new MatchedDataPair(xKeyData, yKeyData));
-						resultData.put(xKey, matches);
-					}
+					addMatchToResultData(xKey, new MatchedDataPair(xKeyData, yKeyData));
 				}
 			}
 		}
+//		xData.getData().forEach((xKey, xValue) -> {
+//			yData.getData().forEach((yKey, yValue) -> {
+//				if(resolution.areEqual(xKey, yKey)) {
+//					Double xKeyData = xData.getData().get(xKey);
+//					Double yKeyData = yData.getData().get(yKey);
+//					addMatchToResultData(resolution.getKey(xKey), new MatchedDataPair(xKeyData, yKeyData));
+//				}
+//				
+//			}); 
+//			
+//		}); 
 		
+		calculateResultToFinal();
+
+		return new DataCollection(getTitle(), xData.getUnit(), yData.getUnit(), finalResult);
+	}
+
+	private void addMatchToResultData(String xKey, MatchedDataPair match) {
+		if(resultData.containsKey(xKey)) {
+			List<MatchedDataPair> existing = resultData.get(xKey);
+			existing.add(match);
+		}
+		else {
+			List<MatchedDataPair> matches = new ArrayList<>();
+			matches.add(match);
+			resultData.put(xKey, matches);
+		}
+	}
+
+	private void calculateResultToFinal() {
 		resultData.forEach((key, list) -> {
 			
 			Double sumX = 0.0;
@@ -79,8 +100,6 @@ public class DataCollectionBuilder {
 			finalResult.put(key, new MatchedDataPair(averageX, averageY));
 			
 		});
-
-		return new DataCollection(getTitle(), xData.getUnit(), yData.getUnit(), finalResult);
 	}
 
 

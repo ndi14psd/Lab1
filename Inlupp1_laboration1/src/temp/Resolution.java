@@ -18,7 +18,7 @@ public enum Resolution {
 	WEEK {
 		@Override
 		public String getKey(LocalDate date) {
-			return date.getYear() + " Week: " + date.getDayOfYear() / 52;
+			return date.getYear() + " Week: " + calculateWeeks(date.getDayOfYear());
 		}
 	}, 
 	DAY {
@@ -27,7 +27,21 @@ public enum Resolution {
 			return date.toString();
 		}	
 	};
-	
+
 	public abstract String getKey(LocalDate date);
+
+	protected int calculateWeeks(int dayOfYear) {
+		int dayToCompare = 0;
+		int weekNumber = 1;
+		for (int i = 1; i < 53; i++) {
+			dayToCompare += 7;
+			if(dayOfYear <= dayToCompare){ 
+				weekNumber = i;
+				break;	
+			}
+			
+		}
+		return weekNumber;
+	}
 
 }

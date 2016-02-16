@@ -14,43 +14,41 @@ import org.junit.Test;
 
 public class DataCollectionBuilderTest {
 	DataCollectionBuilder dcBuilder;
-	//Map<String, MatchedDataPair> correctDataDay;
 	DataSource xData;
 	DataSource yData;
-	Resolution resolution;
+
 	@Before
 	public void setUp() throws Exception {
-		resolution = Resolution.DAY;
-		Map<LocalDate, Double> temperatureTable = new HashMap<>();
-		Map<LocalDate, Double> wakeUpTimeTable = new HashMap<>();
+		Map<LocalDate, Double> temperature = new HashMap<>();
+		Map<LocalDate, Double> wakeUpTime = new HashMap<>();
+
+		temperature.put(LocalDate.of(2016, 1, 1), (double) -14);
+		temperature.put(LocalDate.of(2016, 1, 9), (double) 2);
+		temperature.put(LocalDate.of(2016, 2, 1), (double) 0);
+		temperature.put(LocalDate.of(2016, 2, 5), (double) -4);
+		temperature.put(LocalDate.of(2016, 2, 15), (double) -5);
+		temperature.put(LocalDate.of(2016, 3, 2), (double) 5);
+		temperature.put(LocalDate.of(2016, 3, 6), (double) 6);
+
+		temperature.put(LocalDate.of(2005, 2, 6), (double) 6);
+		temperature.put(LocalDate.of(2005, 3, 6), (double) -4);
 		
-		temperatureTable.put(LocalDate.of(2016, 1, 1), (double) -14);
-		temperatureTable.put(LocalDate.of(2016, 1, 9), (double) 2);
-		temperatureTable.put(LocalDate.of(2016, 2, 1), (double) 0);
-		temperatureTable.put(LocalDate.of(2016, 2, 5), (double) -4);
-		temperatureTable.put(LocalDate.of(2016, 2, 15), (double) -5);
-		temperatureTable.put(LocalDate.of(2016, 3, 2), (double) 5);
-		temperatureTable.put(LocalDate.of(2016, 3, 6), (double) 6);
+		wakeUpTime.put(LocalDate.of(2005, 5, 1), (double) 6);
+		wakeUpTime.put(LocalDate.of(2005, 1, 1), (double) 7);
+
+		temperature.put(LocalDate.of(1989, 12, 30), (double) 6);
+		temperature.put(LocalDate.of(1989, 12, 20), (double) -4);
 		
-		temperatureTable.put(LocalDate.of(2005, 2, 6), (double) 6);
-		temperatureTable.put(LocalDate.of(2005, 3, 6), (double) -4);
-		wakeUpTimeTable.put(LocalDate.of(2005, 5, 1), (double) 6);
-		wakeUpTimeTable.put(LocalDate.of(2005, 1, 1), (double) 7);
-		
-		temperatureTable.put(LocalDate.of(1989, 12, 30), (double) 6);
-		temperatureTable.put(LocalDate.of(1989, 12, 20), (double) -4);
-		wakeUpTimeTable.put(LocalDate.of(1989, 12, 29), (double) 6);
-		wakeUpTimeTable.put(LocalDate.of(1989, 12, 21), (double) 7);
-		
-		wakeUpTimeTable.put(LocalDate.of(2016, 1, 1), (double) 6);
-		wakeUpTimeTable.put(LocalDate.of(2016, 2, 1), (double) 8);
-		wakeUpTimeTable.put(LocalDate.of(2016, 2, 5), (double) 6);
-		wakeUpTimeTable.put(LocalDate.of(2016, 3, 2), (double) 12);
-		wakeUpTimeTable.put(LocalDate.of(2016, 3, 6), (double) 5);
-		xData = new FakeDataSource("Temperature", "Celcius", temperatureTable);
-		yData = new FakeDataSource("Wake up time","Hour", wakeUpTimeTable);
-		
-		
+		wakeUpTime.put(LocalDate.of(1989, 12, 29), (double) 6);
+		wakeUpTime.put(LocalDate.of(1989, 12, 21), (double) 7);
+
+		wakeUpTime.put(LocalDate.of(2016, 1, 1), (double) 6);
+		wakeUpTime.put(LocalDate.of(2016, 2, 1), (double) 8);
+		wakeUpTime.put(LocalDate.of(2016, 2, 5), (double) 6);
+		wakeUpTime.put(LocalDate.of(2016, 3, 2), (double) 12);
+		wakeUpTime.put(LocalDate.of(2016, 3, 6), (double) 5);
+		xData = new FakeDataSource("Temperature", "Celcius", temperature);
+		yData = new FakeDataSource("Wake up time","Hour", wakeUpTime);
 	}
 
 	private Map<String, MatchedDataPair> createCorrectDayData() {
@@ -79,7 +77,6 @@ public class DataCollectionBuilderTest {
 		correctDataMonth.put("2016 FEBRUARY", new MatchedDataPair(-3, 7.0));
 		correctDataMonth.put("2016 MARCH", new MatchedDataPair(5.5, 8.5));
 		correctDataMonth.put("1989 DECEMBER", new MatchedDataPair(1.0, 6.5));
-		
 		return correctDataMonth;
 	}
 	private Map<String, MatchedDataPair> createCorrectYearData() {
@@ -93,45 +90,31 @@ public class DataCollectionBuilderTest {
 	@After
 	public void tearDown() throws Exception {
 	}
-	
+
 	@Test
 	public void testGetResultDay() {
-	dcBuilder = new DataCollectionBuilder(xData, yData, Resolution.DAY);
-	Map<String, MatchedDataPair> correctDataDay;
-	correctDataDay = createCorrectDayData();
-	DataCollection matchedData = dcBuilder.getResult();
-	DataCollection correctData = new DataCollection("Temperature / Wake up time", "Celcius", "Hour", correctDataDay);
-	assertTrue(correctData.equals(matchedData));
-	System.out.println(matchedData.getData());
+		assertTrue(testGetResult(Resolution.DAY, createCorrectDayData()));
 	}
-	
+
 	@Test
 	public void testGetResultWeek() {
-		dcBuilder = new DataCollectionBuilder(xData, yData, Resolution.WEEK);
-		DataCollection matchedData = dcBuilder.getResult();
-		Map<String, MatchedDataPair> correctDataWeek = createCorrectWeekData();
-		DataCollection correctData = new DataCollection("Temperature / Wake up time", "Celcius", "Hour", correctDataWeek);
-		assertTrue(correctData.equals(matchedData));
-		System.out.println(correctData.getData());
+		assertTrue(testGetResult(Resolution.WEEK, createCorrectWeekData()));
 	}
-	
+
 	@Test
 	public void testGetResultMonth() {
-		dcBuilder = new DataCollectionBuilder(xData, yData, Resolution.MONTH);
-		DataCollection matchedData = dcBuilder.getResult();
-		Map<String, MatchedDataPair> correctDataMonth = createCorrectMonthData();
-		DataCollection correctData = new DataCollection("Temperature / Wake up time", "Celcius", "Hour", correctDataMonth);
-		assertTrue(correctData.equals(matchedData));
-		System.out.println(matchedData.getData());
+		assertTrue(testGetResult(Resolution.MONTH, createCorrectMonthData()));
 	}
-	
+
 	@Test
 	public void testGetResultYear() {
-		dcBuilder = new DataCollectionBuilder(xData, yData, Resolution.YEAR);
+		assertTrue(testGetResult(Resolution.YEAR, createCorrectYearData()));
+	}
+	public boolean testGetResult(Resolution resolution, Map<String, MatchedDataPair> correctResData) {
+		dcBuilder = new DataCollectionBuilder(xData, yData, resolution);
 		DataCollection matchedData = dcBuilder.getResult();
-		Map<String, MatchedDataPair> correctDataYear = createCorrectYearData();
-		DataCollection correctData = new DataCollection("Temperature / Wake up time", "Celcius", "Hour", correctDataYear);
-		assertTrue(correctData.equals(matchedData));
-		System.out.println(matchedData.getData());
+		DataCollection correctCollection = new DataCollection("Temperature / Wake up time", "Celcius", "Hour", correctResData);
+		System.out.println("Comparing builder made data: \n" + matchedData.getData() + "\nWith correct data: \n" + correctCollection.getData() + "\nEND \n");
+		return (correctCollection.equals(matchedData));
 	}
 }

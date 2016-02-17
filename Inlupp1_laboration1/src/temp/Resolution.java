@@ -43,5 +43,9 @@ public enum Resolution {
 		}
 		return weekNumber;
 	}
+	
+	public boolean areSame(LocalDate firstDate, LocalDate secondDate) {
+		return getKey(firstDate).equals(getKey(secondDate));
+	}
 
 }

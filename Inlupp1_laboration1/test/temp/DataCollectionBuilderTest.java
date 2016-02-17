@@ -81,7 +81,7 @@ public class DataCollectionBuilderTest {
 	}
 	private Map<String, MatchedDataPair> createCorrectYearData() {
 		Map<String, MatchedDataPair> correctDataYear = new HashMap<>();
-		correctDataYear.put("2016", new MatchedDataPair(-1.4285714285714286, 7.4));
+		correctDataYear.put("2016", new MatchedDataPair(-1.43, 7.4));
 		correctDataYear.put("2005", new MatchedDataPair(1.0, 6.5));
 		correctDataYear.put("1989", new MatchedDataPair(1.0, 6.5));
 		return correctDataYear;

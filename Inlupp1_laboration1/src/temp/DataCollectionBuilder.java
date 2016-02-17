@@ -72,10 +72,12 @@ public class DataCollectionBuilder {
 			
 			Double averageX = sumX / list.size();
 			Double averageY = sumY / list.size();
-			
-			finalResult.put(key, new MatchedDataPair(averageX, averageY));
+			finalResult.put(key, new MatchedDataPair(roundTwoDecimals(averageX), roundTwoDecimals(averageY)));
 			
 		});
+	}
+	private double roundTwoDecimals(double d){
+		return ((double) Math.round(d * 100) / 100);
 	}
 
 
